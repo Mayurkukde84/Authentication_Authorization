@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const User = require('../model/userModal')
 const jwt = require('jsonwebtoken')
+const {promisify} = require('util')
 
 const signToken = (id)=>{
   return  jwt.sign({id},
@@ -60,8 +61,33 @@ const login = asyncHandler(async(req,res)=>{
     
 })
 
+const protect = asyncHandler(async(req,res,next)=>{
+   let token;
+   if(req.headers.authorization && req.headers.authorization.startsWith('Bearer'))
+    {
+        token = req.headers.authorization.split(' ')[1]
+    }
+    if(!token){
+        return res.status(401).json({message:'You are not logged in to get access'})
+    }
+    //verify token
+    const decoded = await promisify (jwt.verify)(token,process.env.JWT_SECRET)
+    //check user still logged in
+    const currentUser = await User.findById(decoded.id)
+    if(!currentUser){
+        return res.status(401).json({message:'The user belonging to user doe not belongig'})
+    }
+    //check if user changed passwor dafter the token was issued
+    if(currentUser.changedPasswordAfter(decoded.iat)){
+        return res.status(401).json({message:'User recently changed password! please log in again'})
+    }
+})
+const restrictTo = asyncHandler(async(req,res)=>{
+    
+})
 
 module.exports ={
     signup,
-    login
+    login,
+    protect
 }
