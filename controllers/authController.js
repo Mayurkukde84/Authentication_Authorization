@@ -81,13 +81,21 @@ const protect = asyncHandler(async(req,res,next)=>{
     if(currentUser.changedPasswordAfter(decoded.iat)){
         return res.status(401).json({message:'User recently changed password! please log in again'})
     }
+    req.user = currentUser
+    next()
 })
-const restrictTo = asyncHandler(async(req,res)=>{
-    
-})
+const restrictTo = (...roles) =>{
+    return (req,res,next)=>{
+        if(!roles.includes(req.user.role)){
+            return res.status(403).json({message:'You do not have permission to perform this operation'})
+        }
+        next()
+    }
+}
 
 module.exports ={
     signup,
     login,
-    protect
+    protect,
+    restrictTo
 }
