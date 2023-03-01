@@ -188,6 +188,15 @@ await user.save();
   })
 });
 
+const updatePassword = asyncHandler(async(req,res)=>{
+//1)Get user from collection
+
+//2)check if posted currrent pasword is correct
+
+//3)If so,update password
+
+//4)Log user in ,send JWT
+})
 module.exports = {
   singnup,
   login,
