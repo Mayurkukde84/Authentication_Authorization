@@ -4,5 +4,5 @@ const userController = require('../controllers/userController')
 const authController = require('../controllers/authController')
 
 router.route('/getalluser').get(authController.protect,authController.restrictTo('user'),userController.getAllUser)
-
+router.route('/updateMe').patch(authController.protect,userController.updateMe)
 module.exports = router

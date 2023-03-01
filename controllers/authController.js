@@ -190,10 +190,15 @@ await user.save();
 
 const updatePassword = asyncHandler(async(req,res)=>{
 //1)Get user from collection
-
+const user = await User.findById(req.user.id).select('+password')
 //2)check if posted currrent pasword is correct
-
+if(!(await user.correctPassword(req.body.passwordConfirm,user.password))){
+    return res.status(401).json({message:"Your current password is wrong"})
+}
 //3)If so,update password
+user.password = req.body.password
+user.passwordConfirm = req.body.passwordConfirm
+await user.save()
 
 //4)Log user in ,send JWT
 })
@@ -204,4 +209,5 @@ module.exports = {
   restrictTo,
   forgotPassword,
   resetPassword,
+  updatePassword
 };
