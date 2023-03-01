@@ -181,7 +181,14 @@ await user.save();
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
-
+  const cookieOptions = {
+    expiresIn: new Date(
+      Date.now() + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    secure: false,
+    httpOnly: true,
+  };
+  res.cookie("jwt", token, cookieOptions);
   res.status(200).json({
     status:'success',
     token
@@ -201,6 +208,26 @@ user.passwordConfirm = req.body.passwordConfirm
 await user.save()
 
 //4)Log user in ,send JWT
+const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+
+const cookieOptins={
+    expiresIn: new Date(Date.now() + process.env.JWT_EXPIRES_IN*24*60*60*1000),
+    secure:false,
+    httpOnly:true
+}
+res.cookie('jwt',token,cookieOptins)
+user.password = undefined
+
+  res.status(statusCode).json({
+    status:'success',
+    token,
+    
+    data:{
+      user
+    }
+  })
 })
 module.exports = {
   singnup,
